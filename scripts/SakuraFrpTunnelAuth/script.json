@@ -1,0 +1,41 @@
+{
+  "intentInputTypes" : [
+
+  ],
+  "localizedDescriptions" : {
+    "ja" : "",
+    "en" : "",
+    "zh" : "",
+    "de" : "",
+    "it" : "",
+    "es" : "",
+    "fr" : "",
+    "ru" : "",
+    "pt" : ""
+  },
+  "permissions" : null,
+  "localizedNames" : {
+    "ja" : "",
+    "en" : "",
+    "zh" : "",
+    "de" : "",
+    "it" : "",
+    "es" : "",
+    "fr" : "",
+    "ru" : "",
+    "pt" : ""
+  },
+  "icon" : "network",
+  "author" : null,
+  "runInApp" : false,
+  "description" : null,
+  "color" : "rgba(28, 140, 255,1)",
+  "entry" : "index.tsx",
+  "contributors" : [
+
+  ],
+  "remoteResource" : null,
+  "name" : "SakuraFrpTunnelAuth",
+  "version" : "1.0.0",
+  "iconImage" : null
+}

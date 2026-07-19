@@ -1,0 +1,13 @@
+{
+  "name": "SakuraFrpTunnelAuth-Scripting",
+  "version": "0.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "scripting-cli start --no-auto-open",
+    "format": "prettier --write src/"
+  },
+  "devDependencies": {
+    "scripting-cli": "^1.4.0"
+  }
+}
