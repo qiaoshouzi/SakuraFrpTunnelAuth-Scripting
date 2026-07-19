@@ -11,5 +11,5 @@
   },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "cSpell.words": ["Sakura"]
+  "cSpell.words": ["exclamationmark", "Sakura", "synchronizable"]
 }
