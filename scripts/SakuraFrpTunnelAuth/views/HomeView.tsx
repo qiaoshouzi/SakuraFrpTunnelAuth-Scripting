@@ -37,11 +37,13 @@ function TunnelListView({
   data,
   tapDefaultAction,
   forceExternalV4Api,
+  refresh,
 }: {
   token: string
   data: TunnelInfo[]
   tapDefaultAction: TapAction
   forceExternalV4Api: boolean
+  refresh: () => Promise<void>
 }) {
   const onClick = useCallback(
     async (type: 'self' | 'ip', id: number) => {
@@ -86,7 +88,7 @@ function TunnelListView({
         <Image systemName="exclamationmark.circle" foregroundStyle="accentColor" />
         <Text>长按查看更多选项</Text>
       </HStack>
-      <List listStyle="inset">
+      <List listStyle="inset" refreshable={refresh}>
         {data.length === 0 && <Text>未找到开启了访问认证的隧道</Text>}
         {data.map((v) => (
           <Button action={() => onClick(tapDefaultAction, v.id)}>
@@ -151,15 +153,17 @@ export default function HomeView({
 }) {
   const [error, setError] = useState<string>()
   const [tunnels, setTunnels] = useState<TunnelInfo[]>()
+  const [isLoading, setIsLoading] = useState(false)
 
   const refresh = useCallback(async () => {
     setError(undefined)
-    setTunnels(undefined)
     if (!token) return
+    setIsLoading(true)
 
     const result = await getTunnels(token)
     if ('error' in result) setError(result.error)
     else setTunnels(result.body)
+    setIsLoading(false)
   }, [token])
   useEffect(() => {
     refresh()
@@ -171,7 +175,14 @@ export default function HomeView({
         navigationTitle="SakuraFrp 访问认证"
         navigationBarTitleDisplayMode={'inline'}
         toolbar={{
-          primaryAction: [<Button title="刷新" systemImage="arrow.clockwise" action={refresh} />],
+          primaryAction: [
+            <Button
+              title="刷新"
+              systemImage="arrow.clockwise"
+              action={refresh}
+              disabled={isLoading}
+            />,
+          ],
         }}
       >
         {error !== undefined && <ErrorView error={error} />}
@@ -190,6 +201,7 @@ export default function HomeView({
               .filter((v) => v.online)}
             tapDefaultAction={tapDefaultAction}
             forceExternalV4Api={forceExternalV4Api}
+            refresh={refresh}
           />
         )}
       </VStack>
