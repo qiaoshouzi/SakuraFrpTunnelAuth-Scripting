@@ -11,6 +11,21 @@ export const ReloadWidgetIntent = AppIntentManager.register({
   },
 })
 
+export const ShowErrorWidgetIntent = AppIntentManager.register({
+  name: 'ShowErrorWidgetIntent',
+  protocol: AppIntentProtocol.AppIntent,
+  perform: async ({ title, message }: { title?: string; message: string }) => {
+    console.log('ShowErrorWidgetIntent')
+    const result = await Dialog.confirm({
+      title,
+      message,
+      cancelLabel: '确定',
+      confirmLabel: '重试',
+    })
+    if (result) Widget.reloadAll()
+  },
+})
+
 export const AuthTunnelWidgetIntent = AppIntentManager.register({
   name: 'AuthTunnelWidgetIntent',
   protocol: AppIntentProtocol.AppIntent,

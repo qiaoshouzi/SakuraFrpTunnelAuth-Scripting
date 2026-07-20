@@ -1,8 +1,45 @@
-import { Button, HStack, Image, Rectangle, Spacer, Text, VStack, Widget, ZStack } from 'scripting'
-import { AuthTunnelWidgetIntent, ReloadWidgetIntent } from './app_intents'
+import {
+  AppIntent,
+  AppIntentProtocol,
+  Button,
+  HStack,
+  Image,
+  Rectangle,
+  Spacer,
+  Text,
+  type VirtualNode,
+  VStack,
+  Widget,
+  ZStack,
+} from 'scripting'
+import { AuthTunnelWidgetIntent, ReloadWidgetIntent, ShowErrorWidgetIntent } from './app_intents'
 import { getTunnels } from './utils/SakuraFrpAPI'
 
-type MainViewParams =
+function Layout({
+  children,
+  intent,
+}: {
+  children: VirtualNode
+  intent: AppIntent<any, AppIntentProtocol>
+}) {
+  return (
+    <ZStack>
+      <Button buttonStyle="plain" intent={intent}>
+        <Rectangle
+          frame={{
+            maxWidth: 'infinity',
+            maxHeight: 'infinity',
+          }}
+          contentShape="rect"
+          fill="clear"
+        />
+      </Button>
+      {children}
+    </ZStack>
+  )
+}
+
+type MainViewParams = (
   | {
       type: 'info'
       iconName: string
@@ -12,22 +49,16 @@ type MainViewParams =
       type: 'auth'
       id: number
       name: string
+      showBottom?: boolean // default true
     }
+) & {
+  lineLimit?: number // default 4
+}
 function MainView(params: MainViewParams) {
   return (
-    <ZStack>
-      {params.type === 'auth' && (
-        <Button buttonStyle="plain" intent={AuthTunnelWidgetIntent(params.id)}>
-          <Rectangle
-            frame={{
-              maxWidth: 'infinity',
-              maxHeight: 'infinity',
-            }}
-            contentShape="rect"
-            fill="clear"
-          />
-        </Button>
-      )}
+    <Layout
+      intent={params.type === 'auth' ? AuthTunnelWidgetIntent(params.id) : ReloadWidgetIntent(null)}
+    >
       <VStack spacing={0}>
         <VStack
           alignment="leading"
@@ -35,7 +66,7 @@ function MainView(params: MainViewParams) {
           padding={{
             top: 12,
             horizontal: 12,
-            bottom: params.type === 'auth' ? undefined : 12,
+            bottom: params.type === 'auth' && params.showBottom !== false ? undefined : 12,
           }}
         >
           {/* Header */}
@@ -100,7 +131,7 @@ function MainView(params: MainViewParams) {
               fontDesign="rounded"
               fontWeight="bold"
               foregroundStyle="label"
-              lineLimit={4}
+              lineLimit={params.lineLimit ?? 4}
               minScaleFactor={0.7}
               multilineTextAlignment="leading"
               fixedSize={{
@@ -114,7 +145,7 @@ function MainView(params: MainViewParams) {
           <Spacer minLength={4} />
         </VStack>
         {/* Bottom */}
-        {params.type === 'auth' && (
+        {params.type === 'auth' && params.showBottom !== false && (
           <HStack
             spacing={4}
             foregroundStyle="white"
@@ -132,24 +163,168 @@ function MainView(params: MainViewParams) {
           </HStack>
         )}
       </VStack>
-    </ZStack>
+    </Layout>
   )
+}
+
+// 未登录
+function LogoutView() {
+  switch (Widget.family) {
+    case 'accessoryCircular':
+      return (
+        <Layout intent={ReloadWidgetIntent(null)}>
+          <Text>未登录</Text>
+        </Layout>
+      )
+    case 'accessoryInline':
+      return (
+        <Layout intent={ReloadWidgetIntent(null)}>
+          <Text>SakuraFrp 未登录</Text>
+        </Layout>
+      )
+
+    default:
+      return <MainView type="info" iconName="x.circle" msg="未登录" />
+  }
+}
+
+// 非法隧道ID
+function TunnelIDInvalidView() {
+  switch (Widget.family) {
+    case 'accessoryCircular':
+      return (
+        <Layout intent={ReloadWidgetIntent(null)}>
+          <VStack>
+            <Text>非法</Text>
+            <Text>隧道ID</Text>
+          </VStack>
+        </Layout>
+      )
+    case 'accessoryInline':
+      return (
+        <Layout intent={ReloadWidgetIntent(null)}>
+          <Text>SakuraFrp 非法隧道ID</Text>
+        </Layout>
+      )
+
+    default:
+      return <MainView type="info" iconName="x.circle" msg="非法隧道ID" />
+  }
+}
+
+// 未输入隧道ID
+function NoInputView() {
+  switch (Widget.family) {
+    case 'accessoryCircular':
+      return (
+        <Layout intent={ReloadWidgetIntent(null)}>
+          <VStack>
+            <Text>未输入</Text>
+            <Text>隧道ID</Text>
+          </VStack>
+        </Layout>
+      )
+    case 'accessoryInline':
+      return (
+        <Layout intent={ReloadWidgetIntent(null)}>
+          <Text>SakuraFrp 未输入隧道ID</Text>
+        </Layout>
+      )
+
+    default:
+      return <MainView type="info" iconName="x.circle" msg="未输入隧道ID" />
+  }
+}
+
+// 隧道未找到
+function TunnelIDNotfoundView() {
+  switch (Widget.family) {
+    case 'accessoryCircular':
+      return (
+        <Layout intent={ReloadWidgetIntent(null)}>
+          <VStack>
+            <Text>隧道</Text>
+            <Text>未找到</Text>
+          </VStack>
+        </Layout>
+      )
+    case 'accessoryInline':
+      return (
+        <Layout intent={ReloadWidgetIntent(null)}>
+          <Text>SakuraFrp 隧道未找到</Text>
+        </Layout>
+      )
+
+    default:
+      return <MainView type="info" iconName="x.circle" msg="隧道未找到" />
+  }
+}
+
+function ErrorView({ message }: { message: string }) {
+  switch (Widget.family) {
+    case 'accessoryCircular':
+      return (
+        <Layout intent={ShowErrorWidgetIntent({ title: '出现错误', message })}>
+          <Text>出现错误</Text>
+        </Layout>
+      )
+    case 'accessoryInline':
+      return (
+        <Layout intent={ShowErrorWidgetIntent({ title: '出现错误', message })}>
+          <Text lineLimit={1}>出现错误: {message}</Text>
+        </Layout>
+      )
+    case 'accessoryRectangular':
+      return (
+        <Layout intent={ShowErrorWidgetIntent({ title: '出现错误', message })}>
+          <Text lineLimit={3} padding={5}>
+            出现错误: {message}
+          </Text>
+        </Layout>
+      )
+
+    default:
+      return <MainView type="info" iconName="x.circle" msg={`出现错误: ${message}`} />
+  }
+}
+
+function AuthView({ id, name }: { id: number; name: string }) {
+  switch (Widget.family) {
+    case 'accessoryCircular':
+      return (
+        <Layout intent={AuthTunnelWidgetIntent(id)}>
+          <Text lineLimit={2} padding={8} minScaleFactor={0.8}>
+            {name}
+          </Text>
+        </Layout>
+      )
+    case 'accessoryInline':
+      return (
+        <Layout intent={AuthTunnelWidgetIntent(id)}>
+          <Text lineLimit={1}>{name}</Text>
+        </Layout>
+      )
+    case 'accessoryRectangular':
+      return <MainView type="auth" id={id} name={name} showBottom={false} lineLimit={1} />
+
+    default:
+      return <MainView type="auth" id={id} name={name} />
+  }
 }
 
 const getWidgetView = async () => {
   const token = Keychain.get('user_token')
-  if (!token) return <MainView type="info" iconName="x.circle" msg="未登录" />
+  if (!token) return <LogoutView />
 
-  if (!Widget.parameter) return <MainView type="info" iconName="x.circle" msg="未输入隧道ID" />
+  if (!Widget.parameter) return <NoInputView />
   const id = Number(Widget.parameter)
-  if (!Number.isInteger(id)) return <MainView type="info" iconName="x.circle" msg="非法隧道ID" />
+  if (!Number.isInteger(id)) return <TunnelIDInvalidView />
 
   const result = await getTunnels(token)
-  if ('error' in result)
-    return <MainView type="info" iconName="x.circle" msg={`出现错误: ${result.error}`} />
+  if ('error' in result) return <ErrorView message={result.error} />
   const tunnel = result.body.find((v) => v.id === id)
-  if (tunnel) return <MainView type="auth" id={tunnel.id} name={tunnel.name} />
-  else return <MainView type="info" iconName="x.circle" msg="隧道未找到" />
+  if (tunnel) return <AuthView id={tunnel.id} name={tunnel.name} />
+  else return <TunnelIDNotfoundView />
 }
 
 const main = async () => {
