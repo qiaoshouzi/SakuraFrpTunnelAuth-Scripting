@@ -4,6 +4,7 @@ import {
   Button,
   HStack,
   Image,
+  Notification,
   Rectangle,
   Spacer,
   Text,
@@ -12,7 +13,7 @@ import {
   Widget,
   ZStack,
 } from 'scripting'
-import { AuthTunnelWidgetIntent, ReloadWidgetIntent, ShowErrorWidgetIntent } from './app_intents'
+import { AuthTunnelWidgetIntent, ReloadWidgetIntent } from './app_intents'
 import { getTunnels } from './utils/SakuraFrpAPI'
 
 function Layout({
@@ -261,22 +262,26 @@ function TunnelIDNotfoundView() {
 }
 
 function ErrorView({ message }: { message: string }) {
+  Notification.schedule({
+    title: 'SakuraFrp 出现错误',
+    body: message,
+  })
   switch (Widget.family) {
     case 'accessoryCircular':
       return (
-        <Layout intent={ShowErrorWidgetIntent({ title: '出现错误', message })}>
+        <Layout intent={ReloadWidgetIntent(null)}>
           <Text>出现错误</Text>
         </Layout>
       )
     case 'accessoryInline':
       return (
-        <Layout intent={ShowErrorWidgetIntent({ title: '出现错误', message })}>
+        <Layout intent={ReloadWidgetIntent(null)}>
           <Text lineLimit={1}>出现错误: {message}</Text>
         </Layout>
       )
     case 'accessoryRectangular':
       return (
-        <Layout intent={ShowErrorWidgetIntent({ title: '出现错误', message })}>
+        <Layout intent={ReloadWidgetIntent(null)}>
           <Text lineLimit={3} padding={5}>
             出现错误: {message}
           </Text>
