@@ -1,19 +1,9 @@
 import { Navigation, Script, Tab, TabView, useEffect, useObservable, useState } from 'scripting'
 import type { TapAction } from './types'
+import { getForceExternalV4ApiFromStore, getTapDefaultActionFromStore } from './utils/store'
 import HomeView from './views/HomeView'
 import LoginView from './views/LoginView'
 import SettingView from './views/SettingView'
-
-const getTapDefaultActionFromStore = (): TapAction => {
-  const result = Storage.get<string>('tapDefaultAction')
-  if (result && ['self', 'ip'].includes(result)) return result as TapAction
-  else return 'self'
-}
-const getForceExternalV4ApiFromStore = (): boolean => {
-  const result = Storage.get<boolean>('forceExternalV4Api')
-  if (result !== null) return result
-  return true
-}
 
 function View() {
   const currentTabValue = useObservable<number>(0)

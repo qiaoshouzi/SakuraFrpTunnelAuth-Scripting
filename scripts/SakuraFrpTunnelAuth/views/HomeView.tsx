@@ -48,21 +48,33 @@ function TunnelListView({
       if (type === 'ip') {
         ip = await Dialog.prompt({
           title: '输入要授权的IP',
+          message: '留空使用本机IP',
         })
-        if (!ip) return
+        if (!ip && ip !== '') return
       }
 
       if (type === 'self' && forceExternalV4Api) {
         const result = await getIP()
         if ('error' in result) {
-          Dialog.alert(`授权失败: ${result.error}`)
+          Dialog.alert({
+            title: '授权失败',
+            message: `从外部API获取IP失败: ${result.error}`,
+          })
           return
         } else ip = result.body
       }
 
       const result = await tunnelAuth(token, id, ip ?? undefined)
-      if ('error' in result) Dialog.alert(`授权失败${ip ? `(${ip})` : ''}: ${result.error}`)
-      else Dialog.alert(`授权成功${ip ? `(${ip})` : ''}`)
+      if ('error' in result)
+        Dialog.alert({
+          title: '授权失败',
+          message: `${ip ? `(${ip})` : ''}: ${result.error}`,
+        })
+      else
+        Dialog.alert({
+          title: '授权成功',
+          message: `${result.body}`,
+        })
     },
     [token, data, forceExternalV4Api],
   )
@@ -79,6 +91,7 @@ function TunnelListView({
                 <Group>
                   <Button title="授权本机IP" action={() => onClick('self', v.id)} />
                   <Button title="输入IP" action={() => onClick('ip', v.id)} />
+                  <Button title="复制隧道ID" action={() => Pasteboard.setStrings([String(v.id)])} />
                 </Group>
               ),
             }}
