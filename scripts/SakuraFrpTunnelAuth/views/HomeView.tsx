@@ -3,6 +3,7 @@ import {
   ContentUnavailableView,
   Group,
   HStack,
+  Image,
   List,
   NavigationStack,
   Spacer,
@@ -80,53 +81,62 @@ function TunnelListView({
   )
 
   return (
-    <List listStyle="inset">
-      {data.length === 0 && <Text>未找到开启了访问认证的隧道</Text>}
-      {data.map((v) => (
-        <Button action={() => onClick(tapDefaultAction, v.id)}>
-          <HStack
-            alignment="top"
-            contextMenu={{
-              menuItems: (
-                <Group>
-                  <Button title="授权本机IP" action={() => onClick('self', v.id)} />
-                  <Button title="输入IP" action={() => onClick('ip', v.id)} />
-                  <Button title="复制隧道ID" action={() => Pasteboard.setStrings([String(v.id)])} />
-                </Group>
-              ),
-            }}
-          >
-            <VStack alignment="leading">
-              <Text font="headline">{v.name}</Text>
-              {v.note !== '' && (
+    <>
+      <HStack>
+        <Image systemName="exclamationmark.circle" foregroundStyle="accentColor" />
+        <Text>长按查看更多选项</Text>
+      </HStack>
+      <List listStyle="inset">
+        {data.length === 0 && <Text>未找到开启了访问认证的隧道</Text>}
+        {data.map((v) => (
+          <Button action={() => onClick(tapDefaultAction, v.id)}>
+            <HStack
+              alignment="top"
+              contextMenu={{
+                menuItems: (
+                  <Group>
+                    <Button title="授权本机IP" action={() => onClick('self', v.id)} />
+                    <Button title="输入IP" action={() => onClick('ip', v.id)} />
+                    <Button
+                      title="复制隧道ID"
+                      action={() => Pasteboard.setStrings([String(v.id)])}
+                    />
+                  </Group>
+                ),
+              }}
+            >
+              <VStack alignment="leading">
+                <Text font="headline">{v.name}</Text>
+                {v.note !== '' && (
+                  <Text font="callout" foregroundStyle="secondaryLabel">
+                    {v.note}
+                  </Text>
+                )}
+              </VStack>
+              <Spacer />
+              <VStack alignment="trailing">
                 <Text font="callout" foregroundStyle="secondaryLabel">
-                  {v.note}
+                  #{v.id}
                 </Text>
-              )}
-            </VStack>
-            <Spacer />
-            <VStack alignment="trailing">
-              <Text font="callout" foregroundStyle="secondaryLabel">
-                #{v.id}
-              </Text>
-              <Text
-                font="caption"
-                fontWeight="medium"
-                padding={{
-                  horizontal: 10,
-                  vertical: 5,
-                }}
-                background="systemBlue"
-                clipShape="capsule"
-                textCase="uppercase"
-              >
-                {v.type}
-              </Text>
-            </VStack>
-          </HStack>
-        </Button>
-      ))}
-    </List>
+                <Text
+                  font="caption"
+                  fontWeight="medium"
+                  padding={{
+                    horizontal: 10,
+                    vertical: 5,
+                  }}
+                  background="systemBlue"
+                  clipShape="capsule"
+                  textCase="uppercase"
+                >
+                  {v.type}
+                </Text>
+              </VStack>
+            </HStack>
+          </Button>
+        ))}
+      </List>
+    </>
   )
 }
 
