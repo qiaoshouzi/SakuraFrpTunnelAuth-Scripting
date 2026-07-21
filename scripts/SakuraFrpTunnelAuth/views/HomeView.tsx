@@ -5,6 +5,7 @@ import {
   HStack,
   Image,
   List,
+  Navigation,
   NavigationStack,
   Spacer,
   Text,
@@ -86,7 +87,7 @@ function TunnelListView({
     <>
       <HStack>
         <Image systemName="exclamationmark.circle" foregroundStyle="accentColor" />
-        <Text>长按查看更多选项</Text>
+        <Text>{Device.isiOSAppOnMac ? '右键' : '长按'}查看更多选项</Text>
       </HStack>
       <List listStyle="inset" refreshable={refresh}>
         {data.length === 0 && <Text>未找到开启了访问认证的隧道</Text>}
@@ -154,6 +155,7 @@ export default function HomeView({
   const [error, setError] = useState<string>()
   const [tunnels, setTunnels] = useState<TunnelInfo[]>()
   const [isLoading, setIsLoading] = useState(false)
+  const dismiss = Navigation.useDismiss()
 
   const refresh = useCallback(async () => {
     setError(undefined)
@@ -175,6 +177,7 @@ export default function HomeView({
         navigationTitle="SakuraFrp 访问认证"
         navigationBarTitleDisplayMode={'inline'}
         toolbar={{
+          cancellationAction: <Button title="关闭" action={dismiss} />,
           primaryAction: [
             <Button
               title="刷新"
